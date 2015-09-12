@@ -23,29 +23,10 @@
  */
 package cbs.runtime;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  *
  * @author karlp
  */
-public class Clock {
-
-    public Clock(String name) {
-        m_name = name;
-    }
-
-    public void addProcess(IProcess proc) {
-        m_processes.add(proc);
-    }
-
-    public void addState(IUpdate state) {
-        m_states.add(state);
-    }
-
-    private final String m_name;
-    private final List<IProcess> m_processes = new LinkedList<>();
-    private final List<IUpdate> m_states = new LinkedList();
-
+public interface IUpdate {
+    public void update();
 }

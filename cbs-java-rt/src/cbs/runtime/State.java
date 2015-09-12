@@ -23,29 +23,29 @@
  */
 package cbs.runtime;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  *
  * @author karlp
  */
-public class Clock {
+public class State<T extends Cloneable> implements IUpdate {
 
-    public Clock(String name) {
-        m_name = name;
+    public State(T val) {
+        set(val);
     }
 
-    public void addProcess(IProcess proc) {
-        m_processes.add(proc);
+    public final void set(T val) {
+        m_next = Util.clone(val);
     }
 
-    public void addState(IUpdate state) {
-        m_states.add(state);
+    public final T get() {
+        return m_curr;
     }
 
-    private final String m_name;
-    private final List<IProcess> m_processes = new LinkedList<>();
-    private final List<IUpdate> m_states = new LinkedList();
+    @Override
+    public void update() {
+        m_curr = m_next;
+    }
+
+    private T m_curr, m_next;
 
 }

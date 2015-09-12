@@ -23,29 +23,42 @@
  */
 package cbs.runtime;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author karlp
  */
-public class Clock {
+public class Global {
 
-    public Clock(String name) {
-        m_name = name;
+    public static final String stDefaultClockName = "clk";
+
+    public static void addProcess(IProcess proc) {
+        addProcess(stDefaultClockName, proc);
     }
 
-    public void addProcess(IProcess proc) {
-        m_processes.add(proc);
+    public static void addState(IUpdate state) {
+        addState(stDefaultClockName, state);
     }
 
-    public void addState(IUpdate state) {
-        m_states.add(state);
+    public static void addProcess(String clk, IProcess proc) {
+        Clock clock = stClocksByName.get(clk);
+        if (null == clock) {
+            clock = new Clock(clk);
+            stClocksByName.put(clk, clock);
+        }
+        clock.addProcess(proc);
     }
 
-    private final String m_name;
-    private final List<IProcess> m_processes = new LinkedList<>();
-    private final List<IUpdate> m_states = new LinkedList();
+    public static void addState(String clk, IUpdate state) {
+        Clock clock = stClocksByName.get(clk);
+        if (null == clock) {
+            clock = new Clock(clk);
+            stClocksByName.put(clk, clock);
+        }
+        clock.addState(state);
+    }
 
+    private static final Map<String, Clock> stClocksByName = new HashMap<>();
 }

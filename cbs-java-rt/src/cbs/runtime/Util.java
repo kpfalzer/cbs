@@ -23,29 +23,31 @@
  */
 package cbs.runtime;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  *
  * @author karlp
  */
-public class Clock {
-
-    public Clock(String name) {
-        m_name = name;
+public class Util {
+    private static final Method stClone = init();
+    
+    private static Method init() {
+        try {
+            return Object.class.getMethod("clone");
+        } catch (NoSuchMethodException | SecurityException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
     }
-
-    public void addProcess(IProcess proc) {
-        m_processes.add(proc);
+    
+    public static <T extends Cloneable>
+            T clone(T obj) {
+        try {
+            return (T) stClone.invoke(obj);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException ex) {
+            //Logger.getLogger(State.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex.getMessage());
+        }
     }
-
-    public void addState(IUpdate state) {
-        m_states.add(state);
-    }
-
-    private final String m_name;
-    private final List<IProcess> m_processes = new LinkedList<>();
-    private final List<IUpdate> m_states = new LinkedList();
-
 }
