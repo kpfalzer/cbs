@@ -23,6 +23,7 @@
  */
 package cbs.runtime;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import java.util.Map;
 public class Global {
 
     public static final String stDefaultClockName = "clk";
+    public static final int stDefaultPeriod = 1;
 
     public static void addProcess(IProcess proc) {
         addProcess(stDefaultClockName, proc);
@@ -43,22 +45,42 @@ public class Global {
     }
 
     public static void addProcess(String clk, IProcess proc) {
-        Clock clock = stClocksByName.get(clk);
-        if (null == clock) {
-            clock = new Clock(clk);
-            stClocksByName.put(clk, clock);
-        }
-        clock.addProcess(proc);
+        stClocksByName.get(clk).addProcess(proc);
     }
 
     public static void addState(String clk, IUpdate state) {
-        Clock clock = stClocksByName.get(clk);
-        if (null == clock) {
-            clock = new Clock(clk);
-            stClocksByName.put(clk, clock);
+        stClocksByName.get(clk).addState(state);
+    }
+
+    public static long doOneCycle() throws InterruptedException {
+        final long begin = System.currentTimeMillis();
+        final Collection<Clock> clocks = stClocksByName.values();
+        assert 1 == clocks.size();
+        boolean ok = true;
+        for (Clock clock : clocks) {
+            if (! evaluate(clock)) {
+                String reason = "evaluate("+clock.getName()+") failed @"+clock.getTime();
+                throw new RuntimeException(reason);
+            }
+            update(clock);
+            clock.incr();
         }
-        clock.addState(state);
+        return System.currentTimeMillis() - begin;
+    }
+
+    private static void update(Clock clock) {
+        for (IUpdate update : clock.getStates()) {
+            update.update();    //no multithread
+        }
+    }
+
+    private static boolean evaluate(Clock clock) throws InterruptedException {
+        return Evaluate.evaluate(clock.getProcesses());
     }
 
     private static final Map<String, Clock> stClocksByName = new HashMap<>();
+
+    static {
+        stClocksByName.put(stDefaultClockName, new Clock(stDefaultClockName, stDefaultPeriod));
+    }
 }

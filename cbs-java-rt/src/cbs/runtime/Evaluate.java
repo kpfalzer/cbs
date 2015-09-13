@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2015 karlp.
+ * Copyright 2015 kpfalzer.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,55 +23,39 @@
  */
 package cbs.runtime;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
- * @author karlp
+ * @author kpfalzer
  */
-public class State<T> extends Value<T> implements IUpdate {
+public class Evaluate {
 
-    public State(T val) {
-        set(val);
-        addToClock();
-    }
-    
-    public State(boolean unused, Output<T> ... outs) {
-        for (Output<T> out : outs) {
-            addFanout(out);
-        }
-        addToClock();
-    }
-    
-    private void addToClock() {
-        Global.addState(this);
-    }
+    public static int stNumThreads = Runtime.getRuntime().availableProcessors();
+    public static int stMaxWaitSecs = 300;
 
-    public final void addFanout(Output<T> out) {
-        if (null == m_outs) {
-            m_outs = new LinkedList<>();
-        }
-        m_outs.add(out);
-    }
-    
-    @Override
-    public final T set(T val) {
-        m_next = val;
-        return val;
-    }
-
-    @Override
-    public void update() {
-        super.set(m_next);
-        if (null != m_outs) {
-            for (Output<T> out : m_outs) {
-                out.set(get());
+    public static boolean evaluate(Collection<IProcess> procs, int numThreads) throws InterruptedException {
+        if ((1 == numThreads) || (2 > procs.size())) {
+            for (IProcess proc : procs) {
+                proc.process();
             }
+            return true;
+        } else {
+            ExecutorService pool = Executors.newFixedThreadPool(numThreads);
+            for (IProcess proc : procs) {
+                pool.execute(() -> {
+                    proc.process();
+                });
+            }
+            pool.shutdown();
+            return pool.awaitTermination(stMaxWaitSecs, TimeUnit.SECONDS);
         }
     }
 
-    private T m_next;
-    private List<Output<T>> m_outs = null;
-
+    public static boolean evaluate(Collection<IProcess> procs) throws InterruptedException {
+        return evaluate(procs, stNumThreads);
+    }
 }

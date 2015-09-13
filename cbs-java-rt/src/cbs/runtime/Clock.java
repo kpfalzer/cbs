@@ -23,6 +23,8 @@
  */
 package cbs.runtime;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,8 +34,9 @@ import java.util.List;
  */
 public class Clock {
 
-    public Clock(String name) {
+    public Clock(String name, int period) {
         m_name = name;
+        m_period = period;
     }
 
     public void addProcess(IProcess proc) {
@@ -44,7 +47,33 @@ public class Clock {
         m_states.add(state);
     }
 
+    public String getName() {
+        return m_name;
+    }
+    
+    public long getTime() {
+        return m_time;
+    }
+    
+    public int getPeriod() {
+        return m_period;
+    }
+    
+    Collection<IProcess> getProcesses() {
+        return Collections.unmodifiableCollection(m_processes);
+    }
+    
+    Collection<IUpdate> getStates() {
+        return Collections.unmodifiableCollection(m_states);
+    }
+
+    long incr() {
+        return (m_time += m_period);
+    }
+    
     private final String m_name;
+    private final int   m_period;
+    private long  m_time = 0;
     private final List<IProcess> m_processes = new LinkedList<>();
     private final List<IUpdate> m_states = new LinkedList();
 

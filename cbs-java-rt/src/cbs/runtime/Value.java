@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2015 karlp.
+ * Copyright 2015 kpfalzer.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,31 +23,36 @@
  */
 package cbs.runtime;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 /**
  *
- * @author karlp
+ * @author kpfalzer
  */
-public class Util {
-    private static final Method stClone = init();
-    
-    private static Method init() {
-        try {
-            return Object.class.getMethod("clone");
-        } catch (NoSuchMethodException | SecurityException ex) {
-            throw new RuntimeException(ex.getMessage());
-        }
+public class Value<T> {
+
+    public Value setName(String name) {
+        assert null == m_name;
+        m_name = name;
+        return this;
     }
     
-    public static <T extends Cloneable>
-            T clone(T obj) {
-        try {
-            return (T) stClone.invoke(obj);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException ex) {
-            //Logger.getLogger(State.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex.getMessage());
-        }
+    public String getName() {
+        return (null != m_name) ? m_name : "?";
     }
+    
+    @Override
+    public String toString() {
+        return getName() + "=" + ((null != get()) ? get().toString() : "?");
+    }
+    
+    public T set(T val) {
+        m_value = val;
+        return get();
+    }
+    
+    public T get() {
+        return m_value;
+    }
+    
+    private String m_name = null;
+    private T m_value;
 }

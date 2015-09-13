@@ -46,17 +46,22 @@ public class BitVector {
         m_val = new BitSet(length(m_lb, m_rb));
     }
 
-    public BitVector(int lb, int rb, int val) {
+    public BitVector(int lb, int rb, long val) {
         m_lb = lb;
         m_rb = rb;
         m_isDesc = isDesc(m_lb, m_rb);
-        m_val = new BitSet(length(m_lb, m_rb));
-        int mask = 0x01;
-        for (int i = 0; i < length(); i++) {
-            if (0 != (mask & val)) {
-                m_val.set(i);
-            }
-            mask <<= 1;
+        m_val = BitSet.valueOf(new long[]{val});
+        clearUnused();
+    }
+
+    /**
+     * Clear unused leading bits.
+     */
+    private void clearUnused() {
+        int i;
+        final int length = length();
+        while ((i = m_val.length()) >= length) {
+            m_val.clear(i);
         }
     }
 
@@ -76,25 +81,22 @@ public class BitVector {
     public BitVector(BitVector bv) {
         this(bv.getLeft(), bv.getRight(), bv.m_val);
     }
-    
+
     public BitSet set(BitSet val) {
         m_val.clear();
         m_val.or(val);
-        // clear any unused bits (i.e., val.length() > length()).
-        for (int i = val.length() - 1; i >= length(); i--) {
-            m_val.clear(i);
-        }
+        clearUnused();
         return get();
     }
-    
+
     public BitSet get() {
-        return (BitSet)m_val.clone();
+        return (BitSet) m_val.clone();
     }
 
     public boolean get(int ix) {
         return m_val.get(realIx(ix));
     }
-    
+
     public BitVector slice(int lb, int rb) {
         if (isDesc(lb, rb) != m_isDesc) {
             String detail = "[" + lb + ":" + rb + "] has incorrect direction";
@@ -112,6 +114,7 @@ public class BitVector {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(length());
+        sb.append(length()).append("'b");
         for (int i = length() - 1; i >= 0; i--) {
             sb.append(m_val.get(i) ? '1' : '0');
         }
@@ -164,11 +167,11 @@ public class BitVector {
     public int getLeft() {
         return m_lb;
     }
-    
+
     public int getRight() {
         return m_rb;
     }
-    
+
     public int[] getRange() {
         return new int[]{getLeft(), getRight()};
     }

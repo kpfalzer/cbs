@@ -28,19 +28,8 @@ package cbs.runtime;
  * @author karlp
  * @param <T> signal type.
  */
-public class Signal<T> {
-
+public class Signal<T> extends Value<T> {
     public Signal(T init) {
-        m_value = init;
+        set(init);
     }
-
-    public T get() {
-        return m_value;
-    }
-
-    public T set(T val) {
-        return (m_value = val);
-    }
-
-    private T m_value = null;
 }

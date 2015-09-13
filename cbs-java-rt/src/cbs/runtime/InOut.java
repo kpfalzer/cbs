@@ -27,7 +27,7 @@ package cbs.runtime;
  *
  * @author karlp
  */
-public class InOut<T> extends Output<T> {
+public class InOut<T extends Cloneable> extends Output<T> {
     public InOut(Signal<T> bidi) {
         super(bidi);
     }
