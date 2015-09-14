@@ -45,7 +45,8 @@ public class Mult16 implements IProcess {
     }
 
     @Override
-    public void process() {
+    public int process() {
+        int rval = -1;
         for (int i = m_stages.length - 1; i > 0; i--) {
             if (null != m_stages[i - 1]) {
                 m_stages[i] = new Stage(m_stages[i - 1]);
@@ -54,8 +55,10 @@ public class Mult16 implements IProcess {
         }
         m_stages[0] = new Stage(m_a.get(), m_b.get());
         if (null != m_stages[stNumStages - 1]) {
-            m_z.set(m_stages[stNumStages - 1].m_sum);
+            rval = m_stages[stNumStages - 1].m_sum;
+            m_z.set(rval);
         }
+        return rval;
     }
 
     private static class Stage {
@@ -63,6 +66,7 @@ public class Mult16 implements IProcess {
         private Stage(int a, int b) {
             m_a = a;
             m_b = b;
+            debug_origABZ = new int[]{a,b,a*b};
             m_sum = 0;
             compute();
         }
@@ -71,12 +75,13 @@ public class Mult16 implements IProcess {
             m_a = prev.m_a << 1;
             m_b = prev.m_b >> 1;
             m_sum = prev.m_sum;
+            debug_origABZ = prev.debug_origABZ;
         }
 
         private void compute() {
             m_sum += (0 != (0x01 & m_b)) ? m_a : 0;
         }
-        int m_a, m_b, m_sum;
+        int m_a, m_b, m_sum, debug_origABZ[];
     }
 
     private final Stage m_stages[] = new Stage[stNumStages];

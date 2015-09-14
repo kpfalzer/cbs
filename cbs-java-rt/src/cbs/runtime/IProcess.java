@@ -28,5 +28,5 @@ package cbs.runtime;
  * @author karlp
  */
 public interface IProcess {
-    public void process();
+    public int process();
 }

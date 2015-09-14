@@ -62,7 +62,9 @@ public class Global {
                 String reason = "evaluate("+clock.getName()+") failed @"+clock.getTime();
                 throw new RuntimeException(reason);
             }
+            System.out.println("update: BEGIN");
             update(clock);
+            System.out.println("update: END");
             clock.incr();
         }
         return System.currentTimeMillis() - begin;

@@ -47,13 +47,14 @@ public class EvaluateTest {
         private final int m_ix = stCnt++;
 
         @Override
-        public void process() {
+        public int process() {
             try {
                 System.out.printf("Item %04d: %d\n", m_ix, System.currentTimeMillis());
                 Thread.sleep(1 * 1000);//5 secs
             } catch (InterruptedException ex) {
                 Logger.getLogger(EvaluateTest.class.getName()).log(Level.SEVERE, null, ex);
             }
+            return 0;
         }
     }
 

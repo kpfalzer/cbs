@@ -58,6 +58,7 @@ public class State<T> extends Value<T> implements IUpdate {
     @Override
     public final T set(T val) {
         m_next = val;
+        System.out.printf("State: next=%d\n", m_next);
         return val;
     }
 
@@ -67,6 +68,7 @@ public class State<T> extends Value<T> implements IUpdate {
         if (null != m_outs) {
             for (Output<T> out : m_outs) {
                 out.set(get());
+                System.out.printf("out.get()=%d\n", out.get());
             }
         }
     }
